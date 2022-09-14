@@ -35,4 +35,4 @@ runs:
   steps:
     - name: Executing synchronization
       shell: bash
-      run: sync-cherry-pick.sh ${{github.repository}}/${{github.ref_name}} --upstream ${{inputs.upstream-org}}/${{inputs.upstream-repo}}/${{inputs.upstream-branch}} 
+      run: ${{ github.action_path }}/sync-cherry-pick.sh ${{github.repository}}/${{github.ref_name}} --upstream ${{inputs.upstream-org}}/${{inputs.upstream-repo}}/${{inputs.upstream-branch}} 
