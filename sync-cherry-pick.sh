@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 display_usage() {
     cat <<EOT
 Synchronize a (downstream) GIT repository with changes performed in another (upstream) GIT repository.
