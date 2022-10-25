@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 display_usage() {
     cat <<EOT
 Synchronize a (downstream) GIT repository with changes performed in another (upstream) GIT repository.
@@ -251,7 +253,12 @@ cherry_pick(){
       fi
       if [[ "$k" == "q" ]] ; then
         # show how to manually fix the problem and quit the process
-        show_how_to_fix  $UPSTREAM_ORG $UPSTREAM_REPO $DOWNSTREAM_ORG $DOWNSTREAM_REPO $DOWNSTREAM_REMOTE $DOWNSTREAM_BRANCH
+        show_how_to_fix  $UPSTREAM_ORG $UPSTREAM_REPO $DOWNSTREAM_ORG $DOWNSTREAM_REPO $UPSTREAM_REMOTE $DOWNSTREAM_BRANCH
+        git cherry-pick --abort
+        echo ""
+        echo "I am trying to push the cherries picked so far into $DOWNSTREAM_BRANCH. If this operation fails, then, you need to pick all the cherries again from scratch."
+        git push origin HEAD:$DOWNSTREAM_BRANCH
+        exit 1
       elif [[ "$k" == "l" ]] ; then
         # skip the commit in this process, will come back if the process is run again
         git cherry-pick --abort
@@ -272,26 +279,25 @@ show_how_to_fix(){
   UPSTREAM_REPO=$2
   DOWNSTREAM_ORG=$3
   DOWNSTREAM_REPO=$4
-  DOWNSTREAM_REMOTE=$5
+  UPSTREAM_REMOTE=$5
   DOWNSTREAM_BRANCH=$6
 
   echo "❗ Some conflict detected on commit $i. Sorry, I cannot do much more, please rerun with -i/--interactive or fix it manually."
   echo "Here a suggestion to help you fix the problem:"
   echo ""
-  echo "  git clone https://github.com/$UPSTREAM_ORG/$UPSTREAM_REPO.git"
+  echo "  git clone https://github.com/$DOWNSTREAM_ORG/$DOWNSTREAM_REPO.git"
   echo "  cd $UPSTREAM_REPO"
-  echo "  git remote add -f $DOWNSTREAM_REMOTE https://github.com/$DOWNSTREAM_ORG/$DOWNSTREAM_REPO.git"
-  echo "  git checkout $DOWNSTREAM_REMOTE/$DOWNSTREAM_BRANCH"
+  echo "  git remote add -f $UPSTREAM_REMOTE https://github.com/$UPSTREAM_ORG/$UPSTREAM_REPO.git"
+  echo "  git fetch $UPSTREAM_REMOTE"
   echo "  git cherry-pick $i"
   echo "  # FIX the conflict manually"
   echo "  git cherry-pick --continue"
   echo "  git commit --amend -m \"\$(git log --format=%B -n1)\" -m \"Conflict fixed manually\" -m \"(cherry picked from commit $UPSTREAM_ORG/$UPSTREAM_REPO@$i)\""
-  echo "  git push $DOWNSTREAM_REMOTE HEAD:$DOWNSTREAM_BRANCH"
+  echo "  git push origin HEAD:$DOWNSTREAM_BRANCH"
   echo ""
   echo "Notice that you must report the fixed resolution in a downstream commit appending the following message line: \"(cherry picked from commit $UPSTREAM_ORG/$UPSTREAM_REPO@$i)\""
   echo ""
   echo "NOTE: you may even provide a single empty commit adding the line \"(cherry picked from commit $UPSTREAM_ORG/$UPSTREAM_REPO@commit-hash)\" for each upstream commit manually fixed in the downstream repo. This last strategy can be used also as a workaround in the rare case you need to skip some commit from the syncronization process."
-  exit 1
 }
 
 main $*
