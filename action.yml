@@ -27,7 +27,10 @@ inputs:
     required: true
   upstream-branch:
     description: 'Upstream branch'
-    required: true        
+    required: true
+  downstream-branch:
+    description: 'Downstream branch'
+    required: true     
 
 runs:
   using: "composite"
@@ -35,4 +38,4 @@ runs:
   steps:
     - name: Executing synchronization
       shell: bash
-      run: ${{ github.action_path }}/sync-cherry-pick.sh ${{github.repository}}/${{github.ref_name}} --upstream ${{inputs.upstream-org}}/${{inputs.upstream-repo}}/${{inputs.upstream-branch}} 
+      run: ${{ github.action_path }}/sync-cherry-pick.sh ${{github.repository}}/${{inputs.downstream-branch}} --upstream ${{inputs.upstream-org}}/${{inputs.upstream-repo}}/${{inputs.upstream-branch}} 
