@@ -17,7 +17,7 @@ EOT
 
 # Directory where to temporarily store local repositories and other files
 WORKSPACE="/tmp/"
- 
+
 UPSTREAM_ORG=""
 UPSTREAM_REPO=""
 UPSTREAM_BRANCH=""
@@ -146,7 +146,7 @@ parse_args(){
             echo "❗ you must provide an upstream repo as -u <org/repo/branch>"
             exit 1
           fi
-          ;; 
+          ;;
         *)
           echo "❗ unknown argument: $1"
           display_usage
@@ -287,6 +287,7 @@ show_how_to_fix(){
   echo "  cd $UPSTREAM_REPO"
   echo "  git remote add -f $UPSTREAM_REMOTE https://github.com/$UPSTREAM_ORG/$UPSTREAM_REPO.git"
   echo "  git fetch $UPSTREAM_REMOTE"
+  echo "  git checkout origin/$DOWNSTREAM_BRANCH"
   echo "  git cherry-pick $i"
   echo "  # FIX the conflict manually"
   echo "  git cherry-pick --continue"
